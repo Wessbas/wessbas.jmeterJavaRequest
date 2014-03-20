@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- =======================================================================
+     This file including its properties has been derived from the build.xml
+     of the AspectLegacy tool, with the kind permission of André van Hoorn.
+
+       http://sourceforge.net/projects/dynamod/files/dynamod.aspectlegacy/
+    ======================================================================== -->
+
+<project name="JavaRequest" default="build-all" basedir=".">
+
+	<property file="build.xml.properties" />
+
+	<target name="-init-version">
+        <property name="copyright"            value="Uni-Kiel, Arbeitsgruppe Software Engineering" />
+        <property name="link"                 value="http://markov4jmeter.sf.net/" />
+        <property name="year"                 value="2014" />
+		<property name="version"              value="1.0-SNAPSHOT" />
+		<property name="dist.name"            value="${dist.filenamebase}-${version}" />
+		<property name="dist.jar"             value="${dist.name}.jar" />
+		<property name="dist.srcBaseName"     value="${dist.name}_sources" />
+		<property name="dist.binBaseName"     value="${dist.name}_binaries" />
+		<property name="dist.javadocBaseName" value="${dist.name}_javadoc" />
+	</target>
+
+	<!-- compile classpaths used for javac -->
+
+	<target name="init-classpaths">
+		<path id="compile-classpath">
+			<fileset dir="${lib.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jmeter.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jmeter.ext.dir}">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+
+		<path id="run-classpath">
+			<fileset dir="${lib.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jmeter.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jmeter.ext.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<!-- <pathelement location="${build.dir}/" /> -->
+		</path>
+	</target>
+
+	<target name="init" depends="-init-version,init-classpaths">
+		<mkdir dir="${build.main.dir}" />
+		<mkdir dir="${build.test.dir}" />
+		<mkdir dir="${tmp.dir}" />
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.release.dir}" />
+	</target>
+
+	<target name="build-all" depends="clean,init,build-javaRequest,build-javadoc,dist-sources,dist-binaries">
+	</target>
+
+	<target name="clean">
+		<delete dir="tmp"/>
+		<delete dir="${dist.dir}" />
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="build-javaRequest" depends="clean, init">
+
+		<!-- compile source code -->
+
+		<javac destDir="${build.main.dir}"
+			   source="1.7"
+			   srcdir="${src.dir}"
+			   debug="true"
+			   classpathref="compile-classpath">
+			<compilerarg value="-Xlint:-path" />
+		</javac>
+
+		<!-- include libs in jar and set classpath in MANIFEST file -->
+		<!-- TODO: Note the jars built in this way can only be executed using 
+		           java -jar from directories with the subdirectory lib/ including 
+		           the required jars. We will have to find a solution such as 
+		           OneJar for this in the future. While there is not another solution
+		           the libraries will be included in the installer -->
+		<!--mkdir dir="${build.main.dir}/lib" />
+		<copy todir="${build.main.dir}/lib/">
+			<fileset dir="lib/">
+				<include name="*.jar" />
+			</fileset>
+		</copy-->
+
+		<path id="build-classpath">
+			<fileset dir="${lib.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jmeter.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jmeter.ext.dir}">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+
+		<manifestclasspath property="lib.list.javaRequest" jarfile="${dist.jar}">
+			<classpath refid="build-classpath" />
+		</manifestclasspath>
+
+		<jar destfile="${dist.dir}/${dist.jar}" basedir="${build.main.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main.class}" />
+				<attribute name="Class-Path" value=". ${lib.list.javaRequest}" />
+			</manifest>
+		</jar>
+
+		<!-- compile tests -->
+
+    	<javac source="1.7" destDir="${build.test.dir}" classpathref="compile-tests-classpath" srcdir="${test.dir}">
+		</javac>
+	</target>
+
+	<target name="dist-sources" depends="init" description="Packages the source archives (.zip|.tar.gz) for a release">
+		<patternset id="dist_src_files-nonbinmode">
+			<include name="bin/log4j.properties" />
+			<include name="bin/*.bat" />
+			<include name="META-INF/*" />
+			<include name="${src.dir}/**/*.java" />
+			<include name="${properties.default.dir}/**/*" />
+			<include name="${src-gen.dir}/**/*.java" />
+			<include name="${test.dir}/**/*.java" />
+			<include name="${test.dir}/**/META-INF/*" />
+			<include name="${examples.dir}/**/*" />
+			<include name="lib/**" />
+			<include name=".classpath" />
+			<include name=".project" />
+			<include name="build.xml" />
+			<include name="build.xml.properties" />
+			<include name="plugin.xml" />
+			<include name="plugin.properties" />
+			<include name="LICENSE" />
+		</patternset>
+		<patternset id="dist_src_files-binmode">
+			<include name="bin/*.sh" />
+		</patternset>
+
+		<tar destfile="${dist.release.dir}/${dist.srcBaseName}.tar" longfile="gnu">
+			<tarfileset dir="." prefix="${dist.name}" defaultexcludes="yes">
+				<patternset refid="dist_src_files-nonbinmode" />
+			</tarfileset>
+			<tarfileset dir="." prefix="${dist.name}" filemode="755" defaultexcludes="yes">
+				<patternset refid="dist_src_files-binmode" />
+			</tarfileset>
+		</tar>
+		<gzip zipfile="${dist.release.dir}/${dist.srcBaseName}.tar.gz" src="${dist.release.dir}/${dist.srcBaseName}.tar" />
+		<!-- tar file no longer needed -->
+		<delete file="${dist.release.dir}/${dist.srcBaseName}.tar" />
+
+		<zip zipfile="${dist.release.dir}/${dist.srcBaseName}.zip">
+		<zipfileset dir="." prefix="${dist.name}" defaultexcludes="yes">
+				<patternset refid="dist_src_files-nonbinmode" />
+			</zipfileset>
+			<zipfileset dir="." prefix="${dist.name}" filemode="755" defaultexcludes="yes">
+				<patternset refid="dist_src_files-binmode" />
+			</zipfileset>
+		</zip>
+	</target>
+
+	<target name="dist-binaries" depends="init" description="Packages the binary archives (.zip|.tar.gz) for a release">
+		<patternset id="dist_bin_files-nonbinmode">
+			<include name="bin/log4j.properties" />
+			<include name="bin/*.bat" />
+			<include name="${dist.dir}/*.jar" />
+			<include name="${dist.dir}/*.war" />
+			<include name="${examples.dir}/**/*" />
+			<exclude name="${examples.dir}/cobol/**/*" />
+			<include name="lib/**" />
+			<include name="LICENSE" />
+		</patternset>
+		<patternset id="dist_bin_files-binmode">
+			<include name="bin/*.sh" />
+		</patternset>
+
+		<tar destfile="${dist.release.dir}/${dist.binBaseName}.tar" longfile="gnu">
+			<tarfileset dir="." prefix="${dist.name}" defaultexcludes="yes">
+				<patternset refid="dist_bin_files-nonbinmode" />
+			</tarfileset>
+			<tarfileset dir="." prefix="${dist.name}" filemode="755" defaultexcludes="yes">
+				<patternset refid="dist_bin_files-binmode" />
+			</tarfileset>
+		</tar>
+		<gzip zipfile="${dist.release.dir}/${dist.binBaseName}.tar.gz" src="${dist.release.dir}/${dist.binBaseName}.tar" />
+		<!-- tar file no longer needed -->
+		<delete file="${dist.release.dir}/${dist.binBaseName}.tar" />
+
+		<zip zipfile="${dist.release.dir}/${dist.binBaseName}.zip">
+			<zipfileset dir="." prefix="${dist.name}" defaultexcludes="yes">
+				<patternset refid="dist_bin_files-nonbinmode" />
+			</zipfileset>
+			<zipfileset dir="." prefix="${dist.name}" filemode="755" defaultexcludes="yes">
+				<patternset refid="dist_bin_files-binmode" />
+			</zipfileset>
+		</zip>
+	</target>
+	
+	<target name="build-javadoc" depends="init" description="Javadoc API documentation">
+		<delete dir="${build.javadoc.dir}" />
+		<mkdir dir="${build.javadoc.dir}" />
+		<path id="javadoc-sourcepath">
+			<dirset dir=".">
+				<include name="${src.dir}" />
+			</dirset>
+		</path>
+		<path id="javadoc-classpath">
+			<fileset dir="${lib.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jmeter.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jmeter.ext.dir}">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+		<javadoc sourcepathref="javadoc-sourcepath"
+			     destdir="${build.javadoc.dir}"
+			     packagenames="*"
+			     access="public"
+			     author="true"
+			     version="false"
+			     use="true"
+			     doctitle="${dist.name} &lt;br/&gt;API Documentation"
+			     header="${dist.name}"
+			     footer="${dist.name}"
+			     bottom="Copyright ${year} ${copyright}, &lt;a href=&quot;${link}&quot;&gt;${link}&lt;/&gt;">
+			<classpath refid="javadoc-classpath" />
+			<link href="http://docs.oracle.com/javase/7/docs/api/" />
+		</javadoc>
+
+		<tar destfile="${dist.release.dir}/${dist.javadocBaseName}.tar" longfile="gnu">
+			<tarfileset dir="${build.javadoc.dir}" prefix="" defaultexcludes="yes" />
+		</tar>
+		<gzip zipfile="${dist.release.dir}/${dist.javadocBaseName}.tar.gz" src="${dist.release.dir}/${dist.javadocBaseName}.tar" />
+		<!-- tar file no longer needed -->
+		<delete file="${dist.release.dir}/${dist.javadocBaseName}.tar" />
+
+		<zip zipfile="${dist.release.dir}/${dist.javadocBaseName}.zip">
+			<zipfileset dir="${build.javadoc.dir}" prefix="" defaultexcludes="yes" />
+		</zip>
+	</target>
+
+</project>
