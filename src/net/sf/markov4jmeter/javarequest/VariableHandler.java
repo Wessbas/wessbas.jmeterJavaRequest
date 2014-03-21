@@ -106,19 +106,20 @@ public class VariableHandler {
 
     /**
      * Sets a value in the <code>JMeterContext</code> instance of the current
-     * thread. The key to which the value will be assigned might be provided
-     * optionally by the given <code>JavaSamplerContext</code> instance; the
-     * related parameter name must be passed; for the case that its assigned
-     * value in the <code>JavaSamplerContext</code> instance is
-     * <code>null</code>, a valid default key must be passed for storing the
-     * value in any case.
+     * thread. The value might be optionally assigned to a parameter-defined
+     * key, provided by the given <code>JavaSamplerContext</code> instance; a
+     * default key might even be passed for the case that the
+     * <code>JavaSamplerContext</code> instance does not provide a key. If
+     * neither a parameter-defined key nor a default key is available (both are
+     * <code>null</code>), nothing will be stored.
      *
      * @param javaSamplerContext
-     *     instance which provides an optional key for the value.
+     *     instance which provides an optional parameter-defined key.
      * @param parameterName
-     *     name of the parameter which maps to an optional key.
+     *     name of the parameter which defines an optional key.
      * @param defaultKey
-     *     default key to be used, if no optional key is available.
+     *     optional default key to be used, if no parameter-defined key is
+     *     available.
      * @param value
      *     value to be stored.
      */
@@ -128,14 +129,18 @@ public class VariableHandler {
             final String defaultKey,
             final Object value) {
 
-        String key = javaSamplerContext.getParameter(parameterName);
+        final String key = javaSamplerContext.getParameter(parameterName);
 
-        if ( !this.isDefinedValue(key) ) {  // (optional) key undefined?
+        if ( this.isDefinedValue(key) ) {
 
-            key = defaultKey;
+            this.setVariable(key, value);
+
+        } else if ( this.isDefinedValue(defaultKey) ) {
+
+            this.setVariable(defaultKey, value);
         }
 
-        this.setVariable(key, value);
+        // store nothing here, since no key is defined;
     }
 
 

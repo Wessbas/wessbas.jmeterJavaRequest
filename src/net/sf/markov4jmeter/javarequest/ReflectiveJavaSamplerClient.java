@@ -13,10 +13,6 @@ import org.apache.jmeter.samplers.SampleResult;
  */
 public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
 
-    /** Default key which is associated with the lately returned value
-     *  of an invoked method. */
-    protected final static String DEFAULT_KEY_RETURN_VALUE = "${rv}";
-
     /** Name of the parameter which is associated with a (fully qualified)
      *  class name. */
     private final static String PARAMETER_NAME__CLASS_NAME = "class";
@@ -115,7 +111,7 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
             this.variableHandler.storeValue(
                     javaSamplerContext,
                     ReflectiveJavaSamplerClient.PARAMETER_NAME__RETURN_VALUE,
-                    ReflectiveJavaSamplerClient.DEFAULT_KEY_RETURN_VALUE,
+                    null,
                     rValue);
 
 

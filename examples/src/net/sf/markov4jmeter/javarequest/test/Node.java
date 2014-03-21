@@ -1,35 +1,34 @@
 package net.sf.markov4jmeter.javarequest.test;
 
-import java.io.Serializable;
+import net.sf.markov4jmeter.javarequest.test.Node;
 
-// Class must implement the Serializable interface for being encoded to a
-// String and vice versa.
-public class Node implements Serializable {
+public class Node {
 
-    // Default serial version ID.
-    private static final long serialVersionUID = 1L;
-
-    private static int idCounter = 1;
+    private static volatile int idCounter = 1;
 
     private final Node parent;
-    private final int id;
+    private final int  id;
 
 
-    // Constructor with a specific parent.
+    // constructor with a specific parent.
     private Node (Node parent) {
 
         this.parent = parent;
-        this.id     = Node.idCounter++;
-
+        this.id     = this.getId();
     }
 
-    // Static method for creating nodes.
+    private synchronized int getId () {
+
+        return Node.idCounter++;
+    }
+
+    // static method for creating nodes
     public static Node create (Node parent) {
 
         return (parent == null) ? new Node(null) : parent.create();
     }
 
-    // Private method for creating child nodes.
+    // private method for creating child nodes.
     private Node create () {
 
         return new Node(this);
@@ -44,8 +43,6 @@ public class Node implements Serializable {
         return parent + " <- " + id + " (" + identityHashCode + ")";
     }
 
-
-    // Example code for using the Node class.
     public static void main (String[] argv) {
 
         // create an initial node.

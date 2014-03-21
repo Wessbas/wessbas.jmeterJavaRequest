@@ -11,13 +11,13 @@ import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
  * <code>JavaSamplerContext</code> instance which provides the parameters of
  * a Java Sampler:
  * <ul>
- *   <li> method <i>parent</i> information as an <code>Object</code>
+ *   <li> method-<i>parent</i> information as an <code>Object</code>
  *        instance (denoting a <code>Class</code> object or an instance of a
  *        class);
  *
- *   <li> method <i>signature</i> as String;
+ *   <li> method-<i>signature</i> as <code>String</code>;
  *
- *   <li> method <i>parameters</i> as <code>Object</code> instance for a
+ *   <li> method-<i>parameters</i> as <code>Object</code> instance for a
  *        detected <code>Method</code> instance.
  * </ul>
  * The regarding parameter names are not predefined, they must be passed by the
