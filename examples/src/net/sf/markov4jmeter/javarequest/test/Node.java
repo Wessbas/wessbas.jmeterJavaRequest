@@ -1,4 +1,4 @@
-package net.sf.markov4jmeter.test;
+package net.sf.markov4jmeter.javarequest.test;
 
 import java.io.Serializable;
 

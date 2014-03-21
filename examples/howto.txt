@@ -1,0 +1,12 @@
+This folder contains a simple example for the ReflectiveJavaSamplerClient.
+
+Usage:
+
+  - Copy the "node.jar" together with the release jar file ("net.sf.markov4jmeter.javarequest-1.0-SNAPSHOT.jar")
+    into the lib/ext folder of the JMeter installation directory.
+
+  - Start the JMeter application.
+
+  - Load the Test Plan ("testplan.jmx") into JMeter.
+
+  - Start running the test, view the results via included "View Results Tree" element.
