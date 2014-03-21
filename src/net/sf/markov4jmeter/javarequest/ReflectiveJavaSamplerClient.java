@@ -125,7 +125,7 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
             result.setDataType(SampleResult.TEXT);
 
             result.setResponseData(
-                    (String) rValue,
+                    rValue.toString(),
                     ReflectiveJavaSamplerClient.ENCODING);
 
             result.setResponseMessage(

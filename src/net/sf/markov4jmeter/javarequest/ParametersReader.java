@@ -144,7 +144,10 @@ public class ParametersReader {
      *   <li> In case an argument for a (serialized) object parameter is
      *    defined, its value will be read from the
      *    <code>JavaSamplerContext</code>, and the deserialized object will be
-     *    returned.
+     *    returned. An object parameter might even denote a reference to a
+     *    variable, formatted as <code>${...}</code>; in that case, the related
+     *    object will be requested from the thread context which handles all
+     *    variables including their objects.
      * </ul>
      *
      * @param javaSamplerContext
@@ -196,7 +199,9 @@ public class ParametersReader {
         } else if (objectString != null) {
 
             // might throw a ParameterException;
-            parent = this.string2Object(objectString);
+            parent = this.isVariableReference(objectString) ?
+                    this.variableHandler.getVariable(objectString) :
+                    this.string2Object(objectString);
 
         } else {
 
@@ -503,11 +508,8 @@ public class ParametersReader {
 
             try {
 
-                final boolean isVariable = parameterValue.trim().matches(
-                        ParametersReader.REGEX__VARIABLE_KEY);
-
                 // resolveMethodParameter() might throw a ParameterException;
-                final Object object = isVariable ?
+                final Object object = this.isVariableReference(parameterValue) ?
                         this.variableHandler.getVariable(parameterValue.trim()):
                         this.resolveMethodParameter(
                                 parameterType,
@@ -650,5 +652,20 @@ public class ParametersReader {
         }
 
         return object;
+    }
+
+    /**
+     * Checks whether a given parameter value is formatted as
+     * <code>${...}</code>, indicating a reference to a variable.
+     *
+     * @param value
+     *     Value to be checked.
+     * @return
+     *     <code>true</code> if and only if the given value is a variable
+     *     reference.
+     */
+    private boolean isVariableReference (final String value) {
+
+        return value.trim().matches(ParametersReader.REGEX__VARIABLE_KEY);
     }
 }

@@ -156,7 +156,7 @@ public class MethodInvoker {
             final String message = String.format(
                     MethodInvoker.ERROR_METHOD_NOT_FOUND,
                     methodSignature,
-                    parent);
+                    parent.getName());
 
             throw new InvocationException(message);
         }

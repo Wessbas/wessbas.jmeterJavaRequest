@@ -352,7 +352,12 @@ public class MethodFinder {
             final String returnType = (k >= 0) ?
                     methodSignature.substring(k + 1).trim() : null;
 
-            final String[] parameterTypes = pTypesStr.split("\\s*,\\s*");
+            // split() returns an array of length 1 if pTypesStr only consists
+            // of whitespace, so this case needs to be considered separately;
+            // otherwise invocations of methods with no parameters will fail;
+            final String[] parameterTypes = pTypesStr.matches("\\s*") ?
+                    new String[]{} :
+                    pTypesStr.split("\\s*,\\s*");
 
             methodSignatureTokens = new MethodSignatureTokens(
                     methodName,
