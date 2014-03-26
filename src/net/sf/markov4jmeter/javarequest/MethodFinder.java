@@ -45,7 +45,7 @@ public class MethodFinder {
     /** Error message for the case that an invalid method signature has been
      *  passed to any finder method. */
     private final static String ERROR_INVALID_METHOD_SIGNATURE =
-            "Invalid method signature: \"%s\"";
+            "invalid method signature: \"%s\"";
 
     /** Default value for the {@link #validateSignatures} flag. */
     private final static boolean DEFAULT_VALIDATE_SIGNATURES = true;

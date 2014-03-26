@@ -1,5 +1,7 @@
 package net.sf.markov4jmeter.javarequest;
 
+import java.io.Serializable;
+
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
@@ -13,19 +15,9 @@ import org.apache.jmeter.samplers.SampleResult;
  */
 public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
 
-    /** Name of the parameter which is associated with a (fully qualified)
-     *  class name. */
-    private final static String PARAMETER_NAME__CLASS_NAME = "class";
-
-    /** Name of the parameter which is associated with an (encoded) object. */
-    private final static String PARAMETER_NAME__OBJECT_STRING = "object";
-
-    /** Name of the parameter which is associated with a method signature. */
-    private final static String PARAMETER_NAME__METHOD_SIGNATURE = "method";
-
-    /** Name of the (optional) parameter which is associated with the variable
-     *  name to be used for storing the return value of an invoked method.*/
-    private final static String PARAMETER_NAME__RETURN_VALUE = "rvariable";
+    /** <code>true</code> if and only if the return value of an invoked method
+     *  shall be encoded before being stored. */
+    private final static boolean ENCODE_RETURN_VALUES = false;
 
     /** (Maximum) number of parameters named <code>arg0</code>,
      *  <code>arg1</code>, <code>arg2</code>, ...
@@ -42,10 +34,32 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
      *
      *  @see MethodFinder#MethodFinder(boolean)
      */
-    private final static boolean VALIDATE_BOOLEAN = true;
+    private final static boolean VALIDATE_SIGNATURES = true;
+
+    /** <code>true</code> if and only if visibility modifiers shall be ignored,
+     *  e.g., for accessing <code>private</code> methods, too. */
+    private final static boolean IGNORE_VISIBILITY = true;
 
 
-    /* --------------------  Sampler-specific properties  ------------------- */
+    /* --------------------------  parameter names  ------------------------- */
+
+    /** Name of the parameter which is associated with a (fully qualified)
+     *  class name. */
+    private final static String PARAMETER_NAME__CLASS_NAME = "class";
+
+    /** Name of the parameter which is associated with a (possibly encoded)
+     *  object. */
+    private final static String PARAMETER_NAME__OBJECT_STRING = "object";
+
+    /** Name of the parameter which is associated with a method signature. */
+    private final static String PARAMETER_NAME__METHOD_SIGNATURE = "method";
+
+    /** Name of the (optional) parameter which is associated with the variable
+     *  name to be used for storing the return value of an invoked method.*/
+    private final static String PARAMETER_NAME__RETURN_VALUE = "returnvariable";
+
+
+    /* -------------------------  result properties  ------------------------ */
 
     /** Success message to be returned by this Sampler. */
     private final static String MESSAGE_SUCCESS = "Operation successful.";
@@ -69,7 +83,7 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
     private final MethodInvoker methodInvoker;
 
     /** Handler for storing and retrieving values of (JMeter) variables. */
-    private final VariableHandler variableHandler;
+    private final ParameterHandler parametersHandler;
 
 
     /* ***************************  constructors  *************************** */
@@ -86,9 +100,10 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
                 ReflectiveJavaSamplerClient.PARAMETER_NAME__CLASS_NAME,
                 ReflectiveJavaSamplerClient.PARAMETER_NAME__OBJECT_STRING,
                 ReflectiveJavaSamplerClient.PARAMETER_NAME__METHOD_SIGNATURE,
-                ReflectiveJavaSamplerClient.VALIDATE_BOOLEAN);
+                ReflectiveJavaSamplerClient.VALIDATE_SIGNATURES,
+                ReflectiveJavaSamplerClient.IGNORE_VISIBILITY);
 
-        this.variableHandler = new VariableHandler();
+        this.parametersHandler = new ParameterHandler();
     }
 
 
@@ -104,24 +119,42 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
 
         try {
 
-            // might throw an InvocationException;
-            final Object rValue =
-                    this.methodInvoker.invokeMethod(javaSamplerContext);
+            // might throw a Parameter- or InvocationException;
+            final Object value = this.methodInvoker.invokeMethod(
+                    javaSamplerContext);
 
-            this.variableHandler.storeValue(
+            // TODO: ensure that return value type equals signature type;
+
+            // might throw a ParameterException;
+            final String name = this.parametersHandler.getReturnVariableName(
                     javaSamplerContext,
-                    ReflectiveJavaSamplerClient.PARAMETER_NAME__RETURN_VALUE,
-                    null,
-                    rValue);
+                    ReflectiveJavaSamplerClient.PARAMETER_NAME__RETURN_VALUE);
 
+            // shall the return value be stored?
+            if ( name != null ) {
+
+                if ( ReflectiveJavaSamplerClient.ENCODE_RETURN_VALUES ) {
+
+                    // note that the value returned by invokeMethod() must
+                    // implement the Serializable interface for being encoded;
+                    this.parametersHandler.storeEncodedValue(
+                            name,
+                            (Serializable) value);
+
+                } else {
+
+                    VariablesPool.put(name, value);
+                }
+            }
 
             result.setResponseOK();  // sets "OK" message by default;
             result.setResponseCodeOK();
 
             result.setDataType(SampleResult.TEXT);
 
+            // ensure that data != null, to avoid a NullPointerException;
             result.setResponseData(
-                    rValue.toString(),
+                    value != null ? value.toString() : "null",
                     ReflectiveJavaSamplerClient.ENCODING);
 
             result.setResponseMessage(
@@ -148,7 +181,7 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
     }
 
     @Override
-    public Arguments getDefaultParameters() {
+    public Arguments getDefaultParameters () {
 
         // do not use super.getDefaultParameters(), since it does not work;
         Arguments defaultParameters = new Arguments();
@@ -173,7 +206,7 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
                 NUMBER_OF_DEFAULT_METHOD_PARAMETERS; i++) {
 
             defaultParameters.addArgument(
-                    ParametersReader.ARG_NAME_PREFIX + i, null);
+                    ParameterHandler.ARG_NAME_PREFIX + i, null);
         }
 
         return defaultParameters;

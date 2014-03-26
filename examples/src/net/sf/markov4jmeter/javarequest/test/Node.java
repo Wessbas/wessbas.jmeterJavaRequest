@@ -1,8 +1,11 @@
 package net.sf.markov4jmeter.javarequest.test;
 
-import net.sf.markov4jmeter.javarequest.test.Node;
+import java.io.Serializable;
 
-public class Node {
+public class Node implements Serializable {
+
+    /** Default serial version ID. */
+    private static final long serialVersionUID = 1L;
 
     private static volatile int idCounter = 1;
 

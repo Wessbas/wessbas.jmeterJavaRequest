@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.5" jmeter="2.10 r1533061">
+<jmeterTestPlan version="1.2" properties="2.6" jmeter="2.11 r1554548">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -11,6 +11,27 @@
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="var1" elementType="Argument">
+            <stringProp name="Argument.name">var1</stringProp>
+            <stringProp name="Argument.value">\obj{rO0ABXA=}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">&quot;rO0ABXA=&quot;  ~  encoded null</stringProp>
+          </elementProp>
+          <elementProp name="var2" elementType="Argument">
+            <stringProp name="Argument.name">var2</stringProp>
+            <stringProp name="Argument.value">${var1}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="var3" elementType="Argument">
+            <stringProp name="Argument.name">var3</stringProp>
+            <stringProp name="Argument.value">${var2}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -26,19 +47,10 @@
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-          <collectionProp name="Arguments.arguments">
-            <elementProp name="${tp}" elementType="Argument">
-              <stringProp name="Argument.name">${tp}</stringProp>
-              <stringProp name="Argument.value">TEST</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-          </collectionProp>
-        </Arguments>
-        <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request" enabled="true">
-          <stringProp name="TestPlan.comments">This Sampler invokes a (public) static create(...) method of the Node class, passing &quot;null&quot; as an argument (encoded: &quot;rO0ABXA=&quot;).
-The method&apos;s return value, which is an instance of Node, will be stored in variable ${rval} for being accessed by other Java Samplers.</stringProp>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request (create Node)" enabled="true">
+          <stringProp name="TestPlan.comments">This Sampler invokes a (public) static create(...) method of the Node class, passing a reference to variable &quot;var3&quot; as argument.
+The value of &quot;var3&quot; will be resolved to null (see definitions in Test Plan element &quot;User Defined Variables&quot;).
+The method&apos;s return value, which is an instance of Node, will be stored in variable ${rv} for being accessed by other Java Samplers.</stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="class" elementType="Argument">
@@ -53,17 +65,17 @@ The method&apos;s return value, which is an instance of Node, will be stored in 
               </elementProp>
               <elementProp name="method" elementType="Argument">
                 <stringProp name="Argument.name">method</stringProp>
-                <stringProp name="Argument.value">create(net.sf.markov4jmeter.javarequest.test.Node)</stringProp>
+                <stringProp name="Argument.value">create(net.sf.markov4jmeter.javarequest.test.Node) : net.sf.markov4jmeter.javarequest.test.Node</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
-              <elementProp name="rvariable" elementType="Argument">
-                <stringProp name="Argument.name">rvariable</stringProp>
-                <stringProp name="Argument.value">${rval}</stringProp>
+              <elementProp name="returnvariable" elementType="Argument">
+                <stringProp name="Argument.name">returnvariable</stringProp>
+                <stringProp name="Argument.value">rv</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="arg0" elementType="Argument">
                 <stringProp name="Argument.name">arg0</stringProp>
-                <stringProp name="Argument.value">rO0ABXA=</stringProp>
+                <stringProp name="Argument.value">${var3}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="arg1" elementType="Argument">
@@ -166,9 +178,9 @@ The method&apos;s return value, which is an instance of Node, will be stored in 
           <stringProp name="classname">net.sf.markov4jmeter.javarequest.ReflectiveJavaSamplerClient</stringProp>
         </JavaSampler>
         <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request" enabled="true">
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request (create child Node 1)" enabled="true">
           <stringProp name="TestPlan.comments">This Sampler invokes a (private) create() method of the Node object which has been returned by the previous Java Sampler.
-The method&apos;s return value will be ignored; alternatively, it might be stored in an arbitrary new variable, or it might even overwrite ${rval}.</stringProp>
+The method&apos;s return value will be ignored; alternatively, it might be stored in an arbitrary new variable, or it might even overwrite ${rv}.</stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="class" elementType="Argument">
@@ -178,16 +190,146 @@ The method&apos;s return value will be ignored; alternatively, it might be store
               </elementProp>
               <elementProp name="object" elementType="Argument">
                 <stringProp name="Argument.name">object</stringProp>
-                <stringProp name="Argument.value">${rval}</stringProp>
+                <stringProp name="Argument.value">${rv}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="method" elementType="Argument">
                 <stringProp name="Argument.name">method</stringProp>
-                <stringProp name="Argument.value">create()</stringProp>
+                <stringProp name="Argument.value">create() : net.sf.markov4jmeter.javarequest.test.Node</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
-              <elementProp name="rvariable" elementType="Argument">
-                <stringProp name="Argument.name">rvariable</stringProp>
+              <elementProp name="returnvariable" elementType="Argument">
+                <stringProp name="Argument.name">returnvariable</stringProp>
+                <stringProp name="Argument.value">rv</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg0" elementType="Argument">
+                <stringProp name="Argument.name">arg0</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg1" elementType="Argument">
+                <stringProp name="Argument.name">arg1</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg2" elementType="Argument">
+                <stringProp name="Argument.name">arg2</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg3" elementType="Argument">
+                <stringProp name="Argument.name">arg3</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg4" elementType="Argument">
+                <stringProp name="Argument.name">arg4</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg5" elementType="Argument">
+                <stringProp name="Argument.name">arg5</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg6" elementType="Argument">
+                <stringProp name="Argument.name">arg6</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg7" elementType="Argument">
+                <stringProp name="Argument.name">arg7</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg8" elementType="Argument">
+                <stringProp name="Argument.name">arg8</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg9" elementType="Argument">
+                <stringProp name="Argument.name">arg9</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg10" elementType="Argument">
+                <stringProp name="Argument.name">arg10</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg11" elementType="Argument">
+                <stringProp name="Argument.name">arg11</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg12" elementType="Argument">
+                <stringProp name="Argument.name">arg12</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg13" elementType="Argument">
+                <stringProp name="Argument.name">arg13</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg14" elementType="Argument">
+                <stringProp name="Argument.name">arg14</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg15" elementType="Argument">
+                <stringProp name="Argument.name">arg15</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg16" elementType="Argument">
+                <stringProp name="Argument.name">arg16</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg17" elementType="Argument">
+                <stringProp name="Argument.name">arg17</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg18" elementType="Argument">
+                <stringProp name="Argument.name">arg18</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg19" elementType="Argument">
+                <stringProp name="Argument.name">arg19</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="classname">net.sf.markov4jmeter.javarequest.ReflectiveJavaSamplerClient</stringProp>
+        </JavaSampler>
+        <hashTree/>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request (create child Node 2)" enabled="true">
+          <stringProp name="TestPlan.comments">This Sampler invokes a (private) create() method of the Node object which has been returned by the previous Java Sampler.
+The method&apos;s return value will be ignored; alternatively, it might be stored in an arbitrary new variable, or it might even overwrite ${rv}.</stringProp>
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="class" elementType="Argument">
+                <stringProp name="Argument.name">class</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="object" elementType="Argument">
+                <stringProp name="Argument.name">object</stringProp>
+                <stringProp name="Argument.value">${rv}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="method" elementType="Argument">
+                <stringProp name="Argument.name">method</stringProp>
+                <stringProp name="Argument.value">create() : net.sf.markov4jmeter.javarequest.test.Node</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="returnvariable" elementType="Argument">
+                <stringProp name="Argument.name">returnvariable</stringProp>
                 <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
@@ -296,8 +438,328 @@ The method&apos;s return value will be ignored; alternatively, it might be store
           <stringProp name="classname">net.sf.markov4jmeter.javarequest.ReflectiveJavaSamplerClient</stringProp>
         </JavaSampler>
         <hashTree/>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request (flush Node variables)" enabled="true">
+          <stringProp name="TestPlan.comments">This Sampler flushes variables which are not required anymore; those variables will not be accessible anymore until redefinition.</stringProp>
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="variables" elementType="Argument">
+                <stringProp name="Argument.name">variables</stringProp>
+                <stringProp name="Argument.value">rv, var1 , var2, var3</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="classname">net.sf.markov4jmeter.javarequest.FlushVariablesSamplerClient</stringProp>
+        </JavaSampler>
+        <hashTree/>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request (String.equals)" enabled="true">
+          <stringProp name="TestPlan.comments">This Sampler invokes the (public) String.equals() method in a &quot;Hello World&quot; String, passing another &quot;Hello World&quot; String as argument.
+The method&apos;s return value (&quot;true&quot;), will be stored in variable ${rv} for being accessed by other Java Samplers.</stringProp>
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="class" elementType="Argument">
+                <stringProp name="Argument.name">class</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="object" elementType="Argument">
+                <stringProp name="Argument.name">object</stringProp>
+                <stringProp name="Argument.value">&quot;Hello World&quot;</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="method" elementType="Argument">
+                <stringProp name="Argument.name">method</stringProp>
+                <stringProp name="Argument.value">equals(java.lang.Object) : Z</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="returnvariable" elementType="Argument">
+                <stringProp name="Argument.name">returnvariable</stringProp>
+                <stringProp name="Argument.value">rv</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg0" elementType="Argument">
+                <stringProp name="Argument.name">arg0</stringProp>
+                <stringProp name="Argument.value">&quot;Hello World&quot;</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg1" elementType="Argument">
+                <stringProp name="Argument.name">arg1</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg2" elementType="Argument">
+                <stringProp name="Argument.name">arg2</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg3" elementType="Argument">
+                <stringProp name="Argument.name">arg3</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg4" elementType="Argument">
+                <stringProp name="Argument.name">arg4</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg5" elementType="Argument">
+                <stringProp name="Argument.name">arg5</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg6" elementType="Argument">
+                <stringProp name="Argument.name">arg6</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg7" elementType="Argument">
+                <stringProp name="Argument.name">arg7</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg8" elementType="Argument">
+                <stringProp name="Argument.name">arg8</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg9" elementType="Argument">
+                <stringProp name="Argument.name">arg9</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg10" elementType="Argument">
+                <stringProp name="Argument.name">arg10</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg11" elementType="Argument">
+                <stringProp name="Argument.name">arg11</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg12" elementType="Argument">
+                <stringProp name="Argument.name">arg12</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg13" elementType="Argument">
+                <stringProp name="Argument.name">arg13</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg14" elementType="Argument">
+                <stringProp name="Argument.name">arg14</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg15" elementType="Argument">
+                <stringProp name="Argument.name">arg15</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg16" elementType="Argument">
+                <stringProp name="Argument.name">arg16</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg17" elementType="Argument">
+                <stringProp name="Argument.name">arg17</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg18" elementType="Argument">
+                <stringProp name="Argument.name">arg18</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg19" elementType="Argument">
+                <stringProp name="Argument.name">arg19</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="classname">net.sf.markov4jmeter.javarequest.ReflectiveJavaSamplerClient</stringProp>
+        </JavaSampler>
+        <hashTree/>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request (boolean/Boolean equals)" enabled="true">
+          <stringProp name="TestPlan.comments">This Sampler invokes a (public) static Boolean.compare() method and passes the result value of the previous Sampler; the second argument is &quot;true&quot;.
+The method&apos;s return value will be ignored; alternatively, it might be stored in an arbitrary new variable, or it might even overwrite &quot;rv&quot;.</stringProp>
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="class" elementType="Argument">
+                <stringProp name="Argument.name">class</stringProp>
+                <stringProp name="Argument.value">java.lang.Boolean</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="object" elementType="Argument">
+                <stringProp name="Argument.name">object</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="method" elementType="Argument">
+                <stringProp name="Argument.name">method</stringProp>
+                <stringProp name="Argument.value">compare(Z, Z) : int</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="returnvariable" elementType="Argument">
+                <stringProp name="Argument.name">returnvariable</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg0" elementType="Argument">
+                <stringProp name="Argument.name">arg0</stringProp>
+                <stringProp name="Argument.value">${rv}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg1" elementType="Argument">
+                <stringProp name="Argument.name">arg1</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg2" elementType="Argument">
+                <stringProp name="Argument.name">arg2</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg3" elementType="Argument">
+                <stringProp name="Argument.name">arg3</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg4" elementType="Argument">
+                <stringProp name="Argument.name">arg4</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg5" elementType="Argument">
+                <stringProp name="Argument.name">arg5</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg6" elementType="Argument">
+                <stringProp name="Argument.name">arg6</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg7" elementType="Argument">
+                <stringProp name="Argument.name">arg7</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg8" elementType="Argument">
+                <stringProp name="Argument.name">arg8</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg9" elementType="Argument">
+                <stringProp name="Argument.name">arg9</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg10" elementType="Argument">
+                <stringProp name="Argument.name">arg10</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg11" elementType="Argument">
+                <stringProp name="Argument.name">arg11</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg12" elementType="Argument">
+                <stringProp name="Argument.name">arg12</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg13" elementType="Argument">
+                <stringProp name="Argument.name">arg13</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg14" elementType="Argument">
+                <stringProp name="Argument.name">arg14</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg15" elementType="Argument">
+                <stringProp name="Argument.name">arg15</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg16" elementType="Argument">
+                <stringProp name="Argument.name">arg16</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg17" elementType="Argument">
+                <stringProp name="Argument.name">arg17</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg18" elementType="Argument">
+                <stringProp name="Argument.name">arg18</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="arg19" elementType="Argument">
+                <stringProp name="Argument.name">arg19</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="classname">net.sf.markov4jmeter.javarequest.ReflectiveJavaSamplerClient</stringProp>
+        </JavaSampler>
+        <hashTree/>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request (flush variables)" enabled="true">
+          <stringProp name="TestPlan.comments">This Sampler flushes variables which are not required anymore; those variables will not be accessible anymore until redefinition.</stringProp>
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="variables" elementType="Argument">
+                <stringProp name="Argument.name">variables</stringProp>
+                <stringProp name="Argument.value">rv</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="classname">net.sf.markov4jmeter.javarequest.FlushVariablesSamplerClient</stringProp>
+        </JavaSampler>
+        <hashTree/>
       </hashTree>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>false</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+      <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Report" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>

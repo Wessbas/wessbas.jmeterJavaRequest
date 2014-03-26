@@ -5,9 +5,7 @@ import java.lang.reflect.Method;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 
 /**
- * Class which provides functions for invoking a method regarding its parent,
- * signature and parameters to be provided by a given
- * <code>JavaSamplerContext</code> instance.
+ * Class which provides functions for invoking a method via Java Reflection.
  *
  * @author   Eike Schulz (esc@informatik.uni-kiel.de)
  * @version  1.0
@@ -16,11 +14,11 @@ public class MethodInvoker {
 
     /** Error message for the case that a method could not be found. */
     private final static String ERROR_METHOD_NOT_FOUND =
-            "Could not find method \"%s\" in class \"%s\".";
+            "could not find method \"%s\" in class \"%s\"";
 
     /** Error message for the case that a method invocation fails. */
     private final static String ERROR_METHOD_INVOCATION_FAILED =
-            "Invocation of method \"%s\" failed: %s";
+            "invocation of method \"%s\" failed: %s";
 
 
     /* *************************  global variables  ************************* */
@@ -40,7 +38,11 @@ public class MethodInvoker {
     private final MethodFinder methodFinder;
 
     /** Instance for requesting and processing Java Sampler parameters */
-    private final ParametersReader parameterReader;
+    private final ParameterHandler parameterReader;
+
+    /** <code>true</code> if and only if visibility modifiers shall be ignored,
+     *  e.g., for accessing <code>private</code> methods, too. */
+    private final boolean ignoreVisibility;
 
 
     /* ***************************  constructors  *************************** */
@@ -58,19 +60,24 @@ public class MethodInvoker {
      * @param validateSignatures
      *     <code>true</code> if and only if the format of method signatures
      *     shall be validated.
+     * @param ignoreVisibility
+     *     <code>true</code> if and only if visibility modifiers shall be
+     *     ignored, e.g., for accessing <code>private</code> methods, too.
      */
     public MethodInvoker (
             final String parameterName_className,
             final String parameterName_objectName,
             final String parameterName_methodSignature,
-            final boolean validateSignatures) {
+            final boolean validateSignatures,
+            final boolean ignoreVisibility) {
 
-        this.parameterName_className = parameterName_className;
-        this.parameterName_objectString = parameterName_objectName;
+        this.parameterName_className       = parameterName_className;
+        this.parameterName_objectString    = parameterName_objectName;
         this.parameterName_methodSignature = parameterName_methodSignature;
+        this.ignoreVisibility              = ignoreVisibility;
 
-        this.parameterReader = new ParametersReader();
-        this.methodFinder = new MethodFinder(validateSignatures);
+        this.parameterReader = new ParameterHandler();
+        this.methodFinder    = new MethodFinder(validateSignatures);
     }
 
 
@@ -137,7 +144,7 @@ public class MethodInvoker {
      * @param methodSignature
      *     signature of the method to be detected.
      * @return
-     *     the method which matches to the given class/object and signature.
+     *     the method which matches the given class/object and signature.
      * @throws InvocationException
      *     if no matching method could be found.
      */
@@ -190,7 +197,7 @@ public class MethodInvoker {
         try {
 
             // allow access of private methods; might throw a SecurityException;
-            method.setAccessible(true);
+            method.setAccessible(this.ignoreVisibility);
 
             // might throw an IllegalAccess-, IllegalArgument-,
             // InvocationTarget- or NullPointerException, or an
