@@ -181,10 +181,25 @@ public class MethodFinder {
                     parameterTypes.add(this.getClassByTypeString(pTypeStr));
                 }
 
-                // might throw NoSuchMethod-, NullPointer- or SecurityException;
-                method = parent.getDeclaredMethod(
-                        methodSignatureTokens.methodName,
-                        parameterTypes.toArray(new Class<?>[]{}));
+                try {
+
+                    // getDeclaredMethod() searches for methods which are
+                    // declared in the specified class (not in its super class),
+                    // including -all- visibilities; might throw NoSuchMethod-,
+                    // NullPointer- or SecurityException;
+                    method = parent.getDeclaredMethod(
+                            methodSignatureTokens.methodName,
+                            parameterTypes.toArray(new Class<?>[]{}));
+
+                } catch (final Exception ex) {
+
+                    // if the method has not been found yet, try to find it in
+                    // the super class, including only public methods; might
+                    // throw NoSuchMethod-, NullPointer- or SecurityException;
+                    method = parent.getMethod(
+                            methodSignatureTokens.methodName,
+                            parameterTypes.toArray(new Class<?>[]{}));
+                }
 
             } catch (final Exception ex) {
 

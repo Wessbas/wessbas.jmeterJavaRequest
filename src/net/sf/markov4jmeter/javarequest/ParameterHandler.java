@@ -1,6 +1,7 @@
 package net.sf.markov4jmeter.javarequest;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
@@ -43,6 +44,10 @@ public class ParameterHandler {
     /** Error message for the case that a class cannot be found. */
     private final static String ERROR_CLASS_NOT_FOUND =
             "could not associate \"%s\" with any class";
+
+    /** Error message for the case that a static field cannot be found. */
+    private final static String ERROR_STATIC_FIELD_NOT_FOUND =
+            "could not associate \"%s\" with any static field";
 
     /** Error message for the case that parent information is ambiguous. */
     private final static String ERROR_PARENT_AMBIGUOUS =
@@ -447,7 +452,7 @@ public class ParameterHandler {
      */
     // TODO: -expressions- are currently assumed to be either a reference or a
     // single value; for evaluating compound expressions, this method might be
-    // overwritten and adjusted.
+    // overwritten and extended.
     protected Object evaluateExpression (
             final Class<?> type,
             final Object   value) throws ParameterException {
@@ -461,6 +466,12 @@ public class ParameterHandler {
 
             // resolve possible references; might throw a ParameterException;
             object = this.resolveReference(type, trimmedValue);
+
+        } else if (value instanceof ReturnVariable) {
+
+            // if "value" is a return value, just return its value (the decoded
+            // object which has been wrapped into the ReturnVariable instance);
+            object = ((ReturnVariable) value).getValue();
 
         } else {
 
@@ -621,12 +632,16 @@ public class ParameterHandler {
 
             else {
 
-                // coding methods might throw Encoding- or ParameterException;
+                // coding methods might throw EncodingException;
                 object = this.objectStringConverter.isEncodedObject(value) ?
                          this.objectStringConverter.decodeValue(value) :
 
-                         // unquote(); might throw a ParameterException;
-                         "null".equals(value) ? null : this.unquote(value);
+                         "null".equals(value) ? null :
+
+                         // unquote() and getStaticField might throw a
+                         // ParameterException;
+                         this.isStringStartingOrEndingWithQuote(value) ?
+                                 this.unquote(value) : getStaticField(value);
             }
 
         } catch (final NumberFormatException
@@ -634,7 +649,7 @@ public class ParameterHandler {
                      | EncodingException ex) {
 
             // just wrap non-ParameterExceptions here;
-            throw new ParameterException(ex.getMessage());
+            throw new ParameterException( ex.getMessage() );
         }
 
         return object;
@@ -911,6 +926,77 @@ public class ParameterHandler {
                     value);
 
             throw new ParameterException (message);
+        }
+    }
+
+    /**
+     * Checks whether a given <code>String</code> starts or ends with a quote.
+     *
+     * @param value
+     *     value to be checked.
+     *
+     * @return
+     *     <code>true</code> if and only if the given <code>String</code> starts
+     *     or ends with a quote.
+     */
+    private boolean isStringStartingOrEndingWithQuote (final String value) {
+
+        return value.startsWith("\"") || value.endsWith("\"");
+    }
+
+    /**
+     * Returns the <code>static</code> field which is indicated by the given
+     * <code>String</code>, for example, <code>"java.lang.System.out"</code> .
+     *
+     * @param value
+     *     <code>String</code> which indicates a <code>static</code> field.
+     *
+     * @return
+     *     the <code>static</code> field indicated by the given
+     *     <code>String</code>.
+     *
+     * @throws ParameterException
+     *     if the given <code>String</code> is invalid or does not denote a
+     *     <code>static</code> field.
+     */
+    private Object getStaticField (final String value)
+            throws ParameterException {
+
+        try {
+
+            final int index = value.lastIndexOf('.');
+
+            // might throw an IndexOutOfBoundsException;
+            final String cName = value.substring(0, index);
+            final String fName = value.substring(index + 1, value.length());
+
+            // might throw a ClassNotFoundException or LinkageError or
+            // ExceptionInInitializerError;
+            final Class<?> c = Class.forName(cName);
+
+            final Field field = c.getDeclaredField(fName);
+
+            // might throw a SecurityException;
+            field.setAccessible(true);
+
+            // might throw an IllegalAccess-, IllegalArgument- or
+            // NullPointerException, or an ExceptionInInitializerError;
+            return field.get(null);
+
+        } catch (final IndexOutOfBoundsException
+                     | ClassNotFoundException
+                     | LinkageError  // includes ExceptionInInitializerError
+                     | NoSuchFieldException
+                     | SecurityException
+                     | IllegalArgumentException
+                     | IllegalAccessException
+                     | NullPointerException ex) {
+
+            final String message = String.format(
+                    ParameterHandler.ERROR_STATIC_FIELD_NOT_FOUND,
+                    value);
+
+            throw new ParameterException(message);
         }
     }
 }

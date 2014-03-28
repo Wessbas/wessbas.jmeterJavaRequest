@@ -113,11 +113,9 @@ public class MethodInvoker {
                 this.parameterName_className,
                 this.parameterName_objectString);
 
-        final Method method;
-
         // try to find a method of the given class/signature combination;
         // might throw an InvocationException;
-        method = this.getMethodByClassNameAndSignature(
+        final Method method = this.getMethodByClassNameAndSignature(
                 parent instanceof Class ? (Class<?>)parent : parent.getClass(),
                 methodSignature);
 

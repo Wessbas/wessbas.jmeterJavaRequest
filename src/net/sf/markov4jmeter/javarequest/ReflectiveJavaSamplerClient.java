@@ -131,7 +131,7 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
                     ReflectiveJavaSamplerClient.PARAMETER_NAME__RETURN_VALUE);
 
             // shall the return value be stored?
-            if ( name != null ) {
+            if ( name != null && value != null) {
 
                 if ( ReflectiveJavaSamplerClient.ENCODE_RETURN_VALUES ) {
 
@@ -143,7 +143,8 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
 
                 } else {
 
-                    VariablesPool.put(name, value);
+                    // wrap the value for identifying it as return value;
+                    VariablesPool.put(name, new ReturnVariable(value));
                 }
             }
 
@@ -154,7 +155,7 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
 
             // ensure that data != null, to avoid a NullPointerException;
             result.setResponseData(
-                    value != null ? value.toString() : "null",
+                    value != null ? value.toString() : "",
                     ReflectiveJavaSamplerClient.ENCODING);
 
             result.setResponseMessage(
