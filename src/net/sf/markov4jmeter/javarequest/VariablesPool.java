@@ -38,7 +38,30 @@ public class VariablesPool {
      */
     public static boolean containsKey (final String key) {
 
+        // use this alternatively as long as the String/Object-cast bug in the
+        // get(String key) method of JMeterVariables has not been fixed yet;
         return VariablesPool.getHashMapForThread().containsKey(key);
+
+        /* NOTE: this does currently not work, since JMeter only processes
+         * String representations of objects;
+
+        final JMeterContext jMeterContext = JMeterContextService.getContext();
+        final JMeterVariables variables = jMeterContext.getVariables();
+
+        final Iterator<Entry<String, Object>> iterator =
+                variables.getIterator();
+
+        while ( iterator.hasNext() ) {
+
+            final Entry<String, Object> entry = iterator.next();
+
+            if (key.equals(entry.getKey())) {
+                return true;
+            }
+        }
+
+        return false;  // no match;
+         */
     }
 
     /**
@@ -50,7 +73,24 @@ public class VariablesPool {
      */
     public static void put (final String key, final Object value) {
 
+        // use this alternatively as long as the String/Object-cast bug in the
+        // get(String key) method of JMeterVariables has not been fixed yet;
         VariablesPool.getHashMapForThread().put(key, value);
+
+        /* NOTE: this does currently not work, since JMeter only processes
+         * String representations of objects;
+
+        final JMeterContext jMeterContext = JMeterContextService.getContext();
+        JMeterVariables variables = jMeterContext.getVariables();
+
+        if (variables == null) {
+
+            variables = new JMeterVariables();
+        }
+
+        variables.putObject(key, value);
+        jMeterContext.setVariables(variables);
+         */
     }
 
     /**
@@ -66,7 +106,18 @@ public class VariablesPool {
      */
     public static Object get (final String key) {
 
+        // use this alternatively as long as the String/Object-cast bug in the
+        // get(String key) method of JMeterVariables has not been fixed yet;
         return VariablesPool.getHashMapForThread().get(key);
+
+        /* NOTE: this does currently not work, since JMeter only processes
+         * String representations of objects;
+
+        final JMeterContext jMeterContext = JMeterContextService.getContext();
+        final JMeterVariables variables = jMeterContext.getVariables();
+
+        return variables == null ? null : variables.getObject(key);
+         */
     }
 
     /**
@@ -80,7 +131,18 @@ public class VariablesPool {
      */
     public static Object remove (final String key) {
 
+        // use this alternatively as long as the String/Object-cast bug in the
+        // get(String key) method of JMeterVariables has not been fixed yet;
         return VariablesPool.getHashMapForThread().remove(key);
+
+        /* NOTE: this does currently not work, since JMeter only processes
+         * String representations of objects;
+
+        final JMeterContext jMeterContext = JMeterContextService.getContext();
+        final JMeterVariables variables = jMeterContext.getVariables();
+
+        return variables == null ? null : variables.remove(key);
+         */
     }
 
 
