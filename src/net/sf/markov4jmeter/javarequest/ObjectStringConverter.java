@@ -289,6 +289,7 @@ public class ObjectStringConverter {
                 } catch (final IOException ex) {
 
                     // ignore exception, since this is the "finally" block;
+                    // TODO: exception message should be written to log file;
                 }
             }
         }

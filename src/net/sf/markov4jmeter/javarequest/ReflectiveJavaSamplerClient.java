@@ -62,10 +62,10 @@ public class ReflectiveJavaSamplerClient extends AbstractJavaSamplerClient {
     /* -------------------------  result properties  ------------------------ */
 
     /** Success message to be returned by this Sampler. */
-    private final static String MESSAGE_SUCCESS = "Operation successful.";
+    private final static String MESSAGE_SUCCESS = "Sampler succeeded.";
 
     /** Failure message to be returned by this Sampler. */
-    private final static String MESSAGE_FAILURE = "An exception occurred: %s";
+    private final static String MESSAGE_FAILURE = "Sampler failed: %s";
 
     /** Failure response code to be returned by this Sampler. */
     private final static String RESPONSE_CODE_FAILURE = "500";
